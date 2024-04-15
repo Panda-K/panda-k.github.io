@@ -1,0 +1,15 @@
+{
+  "background_color": "purple",
+  "description": "Greate Games to Have Fun!",
+  "display": "browser",
+  "icons": [
+    {
+      "src": "image/ic_launcher.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ],
+  "name": "Win Fun",
+  "short_name": "Win Fun",
+  "start_url": "./index.html?sourceID=1100204&pixelID=1830914250760012"
+}

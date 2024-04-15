@@ -1,0 +1,265 @@
+<html>
+
+<head>
+    <title>Win Fun</title>
+    <meta charset='utf-8' />
+    <meta name='renderer' content='webkit' />
+    <meta name='viewport' content='width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no'
+    />
+    <meta name='apple-mobile-web-app-capable' content='yes' />
+    <meta name='full-screen' content='true' />
+    <meta name='x5-fullscreen' content='true' />
+    <meta name='360-fullscreen' content='true' />
+    <meta name='laya' screenorientation='landscape' />
+    <meta http-equiv='expires' content='0' />
+    <meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1' />
+    <meta http-equiv='expires' content='0' />
+    <meta http-equiv='Cache-Control' content='no-siteapp' />
+	
+	<script src="init.js" defer></script>
+	<link rel="manifest" href="manifest1.webmanifest">
+    <style>
+        /* 启动页 */
+        .launch-screen {
+            flex-direction: column;
+			position: fixed;
+			z-index: 10000;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background-color: #10151F;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+        .launch-tips {
+            font-size: 20px;
+            color: #fff;
+            text-align: center;
+		}
+        /* 遮罩层 */
+        .dialog-overlay {
+			position: fixed;
+			z-index: 10000;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			background-color: rgba(0, 0, 0, 0.5);
+			display: none;
+			justify-content: center;
+			align-items: center;
+		}
+
+		/* 弹窗框 */
+		.dialog-wrapper {
+			position: relative;
+			z-index: 10001;
+			width: 280px;
+			padding: 30px;
+			background-color: #fff;
+			border-radius: 5px;
+			box-shadow: 0px 0px 10px #aaa;
+			display: flex;
+			flex-direction: column;
+		}
+
+		.dialog-msg {
+            font-size: 16px;
+            color: #000;
+            text-align: center;
+		}
+
+		/* 弹窗按钮 */
+		.dialog-btn {
+			display: inline-block;
+			margin: 0 10px;
+			padding: 8px 20px;
+			background-color: #428bca;
+			color: #fff;
+			border: none;
+			border-radius: 5px;
+			cursor: pointer;
+			width: 120px;
+		}
+
+		.dialog-btn:hover {
+			background-color: #3071a9;
+		}
+
+		.dialog-btn-group {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			margin-top: 40px;
+		}
+
+		.btn-confirm {
+			background-color: #55a94a;
+		}
+
+		.btn-cancel {
+			background-color: #d9534f;
+		}
+
+		.ctrl-div {
+			display: none;
+			position: fixed;
+			justify-content: center;
+			align-items: center;
+			background-color: #000;
+			z-index: 1002;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			width: 100%;
+			height: 8%;
+		}
+	</style>
+</head>
+
+<body style="background-color: black;">
+	<!-- 启动页 -->
+    <div id="launchScreen" class="launch-screen">
+        <img src="./image/gamelogo.png" style="width: 321; height: 325px;"></img>
+		<label class="launch-tips">Loading resources, please wait...</label>
+	</div>
+
+    <script type="text/javascript">
+        function loadLib(url) {
+            var script = document.createElement("script");
+            script.async = false;
+            script.src = url;
+            document.body.appendChild(script);
+        }
+		function getPixelID() {
+			let mainSearch = window.location.search;
+			let reg = new RegExp("(^|&)souceID=([^&]*)(&|$)", "i");
+			let reg1 = new RegExp("(^|&)pixelID=([^&]*)(&|$)", "i");
+			let pixelParams = mainSearch.substring(1).match(reg1);
+			if (pixelParams) {
+				return pixelParams[2];
+			} else {
+				let url = window.location.href;
+				let pixelID = "0";
+				if (url == "https://www.winfun.love/four/h5/") {
+					pixelID = "1830914250760012";
+				} else if (url == "https://www.winfun.love/five/h5/") {
+					pixelID = "1449472085657873";
+				} else if (url == "https://www.winfun.love/six/h5/") {
+					pixelID = "425386613233047";
+				}
+				return pixelID;
+			}
+		}
+    </script>
+    <script type="text/javascript" src="index.js"></script>
+
+    <script type="text/javascript">
+		window.onorientationchange = function() {
+			console.log("window.orientation  ", window.orientation);
+			// window.location.reload();
+		}
+
+		function closeH5Div1() {
+            var h5Div = document.getElementById("h5Div1");
+            h5Div.style.display = 'none';
+            var myIframe = document.getElementById("myIframe1");
+            myIframe.src = "about:blank";
+        }
+
+        function closeH5Div() {
+            var h5Div = document.getElementById("h5Div");
+            h5Div.style.display = 'none';
+            var myIframe = document.getElementById("myIframe");
+            myIframe.src = "about:blank";
+
+            window.h5HideCallback && window.h5HideCallback();
+        }
+
+        function showDialog() {
+			var h5Div = document.getElementById("h5Div");
+			var ctrlDiv = document.getElementById("ctrlDiv");
+			var imgBack = document.getElementById("back");
+			imgBack.style.display = "none";
+			ctrlDiv.style.display = "flex";
+			h5Div.style.bottom = "8%";
+			h5Div.style.height = "92%";
+		}
+		
+		function showTag(tag) {
+			let self = this;
+			var h5Div = document.getElementById("h5Div");
+			var ctrlDiv = document.getElementById("ctrlDiv");
+			switch (tag) {
+				case 0:
+					h5Div.style.display = "none";
+					window.showLeftMenu();
+					break;
+				case 1:
+					var imgBack = document.getElementById("back");
+					imgBack.style.display = "block";
+					ctrlDiv.style.display = "none";
+					h5Div.style.bottom = "0";
+					h5Div.style.height = "100%";
+					break;
+				case 2:
+					var imgLike = document.getElementById("tag2");
+					if (window.isLikeGame()) {
+						imgLike.src = "./image/img_tag2.png";
+						window.removeGameLike();
+					} else {
+						imgLike.src = "./image/img_tag2_1.png";
+						window.setGameLike();
+					}
+					break;
+				case 3:
+					ctrlDiv.style.display = "none";
+					h5Div.style.display = "none";
+					self.closeH5Div();
+					window.closeMenu();
+					break;
+				case 4:
+					ctrlDiv.style.display = "none";
+					h5Div.style.display = "none";
+					window.showShop();
+					break;
+			
+				default:
+					break;
+			}
+		}
+    </script>
+
+	<div id="h5Div1" style="position: fixed; width: 100%; height: 100%; top: 0; right: 0; bottom: 0; right: 0; z-index: 1000; display: none;">
+		<iframe id="myIframe1" width="100%" height="100%" style="border: none; overflow: hidden;"></iframe>
+		<img id="back1" src="./image/back.png" style="position: absolute; top: 10px; left: 10px; width: 40px; height: 40px; transform-origin: center center;" onclick="closeH5Div1()"></img>
+	</div>
+    
+    <div id="h5Div" style="position: fixed; width: 100%; height: 92%; top: 0; right: 0; bottom: 8%; right: 0; z-index: 1001; display: none;">
+        <iframe id="myIframe" width="100%" height="100%" style="border: none; overflow: hidden;z-index: 1;"></iframe>
+        <img id="back" src="./image/img_back.png" style="position: absolute; bottom: 0; width: 40px; height: 40px; margin-left: 45%;z-index: 2000; display: none;" onclick="showDialog()"></img>
+    </div>
+
+	<div id="ctrlDiv" class="ctrl-div">
+		<img id="tag0" src="./image/img_tag0.png" style="height: 50%; margin: auto;" onclick="showTag(0)"></img>
+		<img id="tag1" src="./image/img_tag1.png" style="height: 50%; margin: auto;" onclick="showTag(1)"></img>
+		<img id="tag4" src="./image/img_tag4.png" style="height: 50%; margin: auto;" onclick="showTag(4)"></img>
+		<img id="tag2" src="./image/img_tag2.png" style="height: 50%; margin: auto;" onclick="showTag(2)"></img>
+		<img id="tag3" src="./image/img_tag3.png" style="height: 50%; margin: auto;" onclick="showTag(3)"></img>
+    </div>
+
+    <!-- 弹窗 -->
+    <div class="dialog-overlay">
+		<div class="dialog-wrapper" id="dialog">
+			<label class="dialog-msg">Có trở về ngay không ?</label>
+			<div class="dialog-btn-group">
+				<button class="dialog-btn btn-cancel">Hủy bỏ</button>
+				<button class="dialog-btn btn-confirm">Xác định</button>
+			</div>
+		</div>
+	</div>
+</body>
+
+</html>
